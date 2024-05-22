@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word文档处理</title>
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.1.2/build/index.min.js"></script>
+</head>
+<body>
+    <h1>Word文档处理</h1>
+    <input type="file" id="fileInput" accept=".docx">
+    <button onclick="processDocument()">处理文档</button>
+    <a id="downloadLink" style="display:none;">点击这里下载新文档</a>
+
+    <script>
+        async function processDocument() {
+            const input = document.getElementById('fileInput');
+            const file = input.files[0];
+
+            if (!file) {
+                alert('请选择一个Word文档');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const arrayBuffer = event.target.result;
+
+                // 创建一个新的Word文档对象
+                const doc = new docx.Document();
+
+                // 在文档末尾添加新的段落“皇家认证”
+                doc.addSection({
+                    children: [
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun("皇家认证"),
+                            ],
+                        }),
+                    ],
+                });
+
+                // 打包修改后的文档
+                const blob = await docx.Packer.toBlob(doc);
+
+                // 创建下载链接
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = 'modified-document.docx';
+                downloadLink.style.display = 'block';
+                downloadLink.textContent = '点击这里下载新文档';
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>
